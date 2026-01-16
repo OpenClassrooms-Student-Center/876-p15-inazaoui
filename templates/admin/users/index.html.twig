@@ -1,0 +1,49 @@
+{% extends 'admin.html.twig' %}
+
+{# =========================
+   STYLES
+   ========================= #}
+{% block stylesheets %}
+    {{ parent() }}
+    <link
+            rel="stylesheet"
+            href="https://cdn.datatables.net/2.1.8/css/dataTables.bootstrap5.min.css"
+    >
+{% endblock %}
+
+{# =========================
+   CONTENU
+   ========================= #}
+{% block admin %}
+    <h1 class="h3 mb-4">Liste des invités</h1>
+
+    {# IMPORTANT :
+       - Pas de bouton "Ajouter" en dur ici : il est injecté par DataTables
+       - Cela permet de l’aligner exactement sur la même ligne que Recherche / Nb lignes
+    #}
+
+    <table
+            id="usersTable"
+            class="table table-striped table-bordered w-100 align-middle"
+            data-ajax-url="{{ path('admin_users_data') }}"
+            data-add-url="{{ path('admin_users_new') }}"
+    >
+        <thead>
+        <tr>
+            <th>#</th>
+            <th>Email</th>
+            <th>Prénom</th>
+            <th>Nom</th>
+            <th>Statut</th>
+            <th>Actions</th>
+        </tr>
+        </thead>
+    </table>
+{% endblock %}
+
+{# =========================
+   SCRIPTS
+   ========================= #}
+{% block javascripts %}
+    {{ parent() }}
+{% endblock %}

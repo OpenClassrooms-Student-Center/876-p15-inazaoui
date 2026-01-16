@@ -1,0 +1,79 @@
+name: CI Symfony Debug & Coverage (MySQL)
+
+on:
+  push:
+  pull_request:
+  workflow_dispatch:
+
+jobs:
+  debug:
+    name: PHPUnit + Coverage + PHPStan (MySQL)
+    runs-on: ubuntu-latest
+
+    services:
+      mysql:
+        image: mysql:8.0
+        env:
+          MYSQL_ROOT_PASSWORD: root
+          MYSQL_DATABASE: inazaoui_test
+          MYSQL_USER: test
+          MYSQL_PASSWORD: test
+        ports:
+          - 3306:3306
+        options: >-
+          --health-cmd="mysqladmin ping -h 127.0.0.1 -u root -proot"
+          --health-interval=10s
+          --health-timeout=5s
+          --health-retries=5
+
+    env:
+      APP_ENV: test
+      DATABASE_URL: mysql://test:test@127.0.0.1:3306/inazaoui_test?serverVersion=8.0&charset=utf8mb4
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup PHP with Xdebug
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.4'
+          coverage: xdebug
+          extensions: mbstring, intl, pdo_mysql
+
+      - name: Validate composer.json
+        run: composer validate --no-check-publish
+
+      - name: Install dependencies
+        run: composer install --no-interaction --prefer-dist --no-progress
+
+      - name: Dump optimized autoload
+        run: composer dump-autoload -o
+
+      - name: Wait for MySQL
+        run: |
+          for i in {1..30}; do
+            mysqladmin ping -h 127.0.0.1 -u root -proot && break
+            sleep 2
+          done
+
+      - name: Prepare test database
+        run: |
+          php bin/console doctrine:database:drop --if-exists --force
+          php bin/console doctrine:database:create --if-not-exists
+          php bin/console doctrine:schema:create
+
+      - name: Run PHPUnit with coverage
+        run: |
+          php bin/phpunit \
+            --coverage-text \
+            --coverage-clover=coverage.xml
+
+      - name: Upload coverage report
+        uses: actions/upload-artifact@v4
+        with:
+          name: coverage-clover
+          path: coverage.xml
+
+      - name: Run PHPStan
+        run: vendor/bin/phpstan analyse --no-progress --memory-limit=2G

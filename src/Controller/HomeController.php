@@ -1,68 +1,92 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Controller;
 
-use App\Entity\Album;
-use App\Entity\Media;
-use App\Entity\User;
+use App\Repository\AlbumRepository;
+use App\Repository\MediaRepository;
+use App\Repository\UserRepository;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
-use Symfony\Component\Routing\Annotation\Route;
+use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\Routing\Attribute\Route;
 
 class HomeController extends AbstractController
 {
-    /**
-     * @Route("/", name="home")
-     */
-    public function home()
+    #[Route('/', name: 'home')]
+    public function home(): Response
     {
         return $this->render('front/home.html.twig');
     }
 
     /**
-     * @Route("/guests", name="guests")
+     * Liste des invités (utilisateurs actifs uniquement).
      */
-    public function guests()
+    #[Route('/guests', name: 'guests')]
+    public function guests(UserRepository $userRepository): Response
     {
-        $guests = $this->getDoctrine()->getRepository(User::class)->findBy(['admin' => false]);
-        return $this->render('front/guests.html.twig', [
-            'guests' => $guests
-        ]);
+        $guests = $userRepository->findAllGuests(); // déjà filtré userActif = true
+
+        return $this->render('front/guests.html.twig', compact('guests'));
     }
 
     /**
-     * @Route("/guest/{id}", name="guest")
+     * Détail d’un invité actif.
      */
-    public function guest(int $id)
-    {
-        $guest = $this->getDoctrine()->getRepository(User::class)->find($id);
-        return $this->render('front/guest.html.twig', [
-            'guest' => $guest
-        ]);
+    #[Route('/guest/{id}', name: 'guest')]
+    public function guest(
+        int $id,
+        UserRepository $userRepository,
+    ): Response {
+        $guest = $userRepository->find($id);
+
+        // Sécurité : invité inexistant ou inactif
+        if (!$guest || !$guest->isUserActif()) {
+            throw $this->createNotFoundException();
+        }
+
+        return $this->render('front/guest.html.twig', compact('guest'));
     }
 
     /**
-     * @Route("/portfolio/{id}", name="portfolio")
+     * Portfolio / Albums
+     * médias d’utilisateurs actifs uniquement.
      */
-    public function portfolio(?int $id = null)
-    {
-        $albums = $this->getDoctrine()->getRepository(Album::class)->findAll();
-        $album = $id ? $this->getDoctrine()->getRepository(Album::class)->find($id) : null;
-        $user = $this->getDoctrine()->getRepository(User::class)->findOneByAdmin(true);
+    #[Route('/portfolio/{id?}', name: 'portfolio')]
+    public function portfolio(
+        AlbumRepository $albumRepository,
+        MediaRepository $mediaRepository,
+        UserRepository $userRepository,
+        ?int $id = null,
+    ): Response {
+        // Albums avec médias visibles uniquement
+        $albums = $albumRepository->findAlbumsWithVisibleMedias();
 
-        $medias = $album
-            ? $this->getDoctrine()->getRepository(Media::class)->findByAlbum($album)
-            : $this->getDoctrine()->getRepository(Media::class)->findByUser($user);
-        return $this->render('front/portfolio.html.twig', [
-            'albums' => $albums,
-            'album' => $album,
-            'medias' => $medias
-        ]);
+        // Album sélectionné
+        $album = $id ? $albumRepository->find($id) : null;
+
+        // Si l’album n’existe pas
+        if ($id && !$album) {
+            throw $this->createNotFoundException();
+        }
+
+        // Administratrice (Ina, active)
+        $admin = $userRepository->findAdmin();
+
+        // Médias visibles selon le contexte
+        if ($album) {
+            $medias = $mediaRepository->findVisibleMedias(compact('album'));
+        } else {
+            $medias = $mediaRepository->findVisibleMedias([
+                'user' => $admin,
+            ]);
+        }
+
+        return $this->render('front/portfolio.html.twig', compact('albums', 'album', 'medias'));
     }
 
-    /**
-     * @Route("/about", name="about")
-     */
-    public function about()
+    #[Route('/about', name: 'about')]
+    public function about(): Response
     {
         return $this->render('front/about.html.twig');
     }

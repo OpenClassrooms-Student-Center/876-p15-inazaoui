@@ -1,72 +1,128 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Controller\Admin;
 
 use App\Entity\Album;
-use App\Entity\Media;
+use App\Entity\User;
 use App\Form\AlbumType;
-use App\Form\MediaType;
+use App\Repository\AlbumRepository;
+use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
-use Symfony\Component\Routing\Annotation\Route;
+use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\Routing\Attribute\Route;
+use Symfony\Component\Security\Http\Attribute\IsGranted;
 
+#[IsGranted('ROLE_USER')]
 class AlbumController extends AbstractController
 {
-    /**
-     * @Route("/admin/album", name="admin_album_index")
-     */
-    public function index()
+    #[Route('/admin/album', name: 'admin_album_index', methods: ['GET'])]
+    public function index(AlbumRepository $albumRepository): Response
     {
-        $albums = $this->getDoctrine()->getRepository(Album::class)->findAll();
+        if ($this->isGranted('ROLE_ADMIN')) {
+            $albums = $albumRepository->findAll();
+        } else {
+            /** @var User $user */
+            $user = $this->getUser();
 
-        return $this->render('admin/album/index.html.twig', ['albums' => $albums]);
+            $albums = $albumRepository->findBy([
+                'user' => $user,
+            ]);
+        }
+
+        return $this->render('admin/album/index.html.twig', [
+            'albums' => $albums,
+        ]);
     }
 
-    /**
-     * @Route("/admin/album/add", name="admin_album_add")
-     */
-    public function add(Request $request)
+    #[Route('/admin/album/add', name: 'admin_album_add', methods: ['GET', 'POST'])]
+    public function add(Request $request, EntityManagerInterface $em): Response
     {
         $album = new Album();
+
+        if (!$this->isGranted('ROLE_ADMIN')) {
+            /** @var User $user */
+            $user = $this->getUser();
+            $album->setUser($user);
+        }
+
         $form = $this->createForm(AlbumType::class, $album);
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {
-            $this->getDoctrine()->getManager()->persist($album);
-            $this->getDoctrine()->getManager()->flush();
+            $em->persist($album);
+            $em->flush();
+
+            $this->addFlash('success', 'Album créé avec succès.');
 
             return $this->redirectToRoute('admin_album_index');
         }
 
-        return $this->render('admin/album/add.html.twig', ['form' => $form->createView()]);
+        return $this->render('admin/album/form.html.twig', [
+            'form' => $form->createView(),
+            'album' => $album,
+            'isEdit' => false,
+        ]);
     }
 
-    /**
-     * @Route("/admin/album/update/{id}", name="admin_album_update")
-     */
-    public function update(Request $request, int $id)
+    #[Route('/admin/album/edit/{id}', name: 'admin_album_edit', methods: ['GET', 'POST'])]
+    public function edit(Album $album, Request $request, EntityManagerInterface $em): Response
     {
-        $album = $this->getDoctrine()->getRepository(Album::class)->find($id);
+        if (
+            !$this->isGranted('ROLE_ADMIN')
+            && $album->getUser() !== $this->getUser()
+        ) {
+            throw $this->createAccessDeniedException();
+        }
+
         $form = $this->createForm(AlbumType::class, $album);
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {
-            $this->getDoctrine()->getManager()->flush();
+            $em->flush();
+
+            $this->addFlash('success', 'Album modifié avec succès.');
 
             return $this->redirectToRoute('admin_album_index');
         }
 
-        return $this->render('admin/album/update.html.twig', ['form' => $form->createView()]);
+        return $this->render('admin/album/form.html.twig', [
+            'form' => $form->createView(),
+            'album' => $album,
+            'isEdit' => true,
+        ]);
     }
 
-    /**
-     * @Route("/admin/album/delete/{id}", name="admin_album_delete")
-     */
-    public function delete(int $id)
+    #[Route('/admin/album/delete/{id}', name: 'admin_album_delete', methods: ['POST'])]
+    public function delete(Album $album, Request $request, EntityManagerInterface $em): Response
     {
-        $media = $this->getDoctrine()->getRepository(Album::class)->find($id);
-        $this->getDoctrine()->getManager()->remove($media);
-        $this->getDoctrine()->getManager()->flush();
+        if (
+            ('test' !== $this->getParameter('kernel.environment'))
+            && !$this->isCsrfTokenValid(
+                'delete_album_'.$album->getId(),
+                $request->request->get('_token')
+            )
+        ) {
+            $this->addFlash('danger', 'Jeton CSRF invalide.');
+
+            return $this->redirectToRoute('admin_album_index');
+        }
+
+        if (
+            !$this->isGranted('ROLE_ADMIN')
+            && $album->getUser() !== $this->getUser()
+        ) {
+            $this->addFlash('danger', 'Vous n’êtes pas autorisé à supprimer cet album.');
+
+            return $this->redirectToRoute('admin_album_index');
+        }
+
+        $em->remove($album);
+        $em->flush();
+
+        $this->addFlash('success', 'Album supprimé.');
 
         return $this->redirectToRoute('admin_album_index');
     }

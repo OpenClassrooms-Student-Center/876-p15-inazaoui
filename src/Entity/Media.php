@@ -1,12 +1,14 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Entity;
 
 use App\Repository\MediaRepository;
 use Doctrine\ORM\Mapping as ORM;
-use Symfony\Component\HttpFoundation\File\UploadedFile;
 
 #[ORM\Entity(repositoryClass: MediaRepository::class)]
+#[ORM\Table(name: 'media')]
 class Media
 {
     #[ORM\Id]
@@ -14,43 +16,38 @@ class Media
     #[ORM\Column]
     private ?int $id = null;
 
-    #[ORM\ManyToOne(targetEntity: User::class, inversedBy: "medias", fetch: "EAGER")]
-    private ?User $user = null;
+    #[ORM\Column(length: 255, nullable: true)]
+    private ?string $path = null;
 
-    #[ORM\ManyToOne(targetEntity: Album::class, fetch: "EAGER")]
-    private ?Album $album = null;
-
-    #[ORM\Column]
-    private string $path;
-
-    #[ORM\Column]
+    #[ORM\Column(length: 255)]
     private string $title;
 
-    private ?UploadedFile $file = null;
+    #[ORM\Column(length: 255, nullable: true)]
+    private ?string $description = null;
+
+    #[ORM\ManyToOne(inversedBy: 'medias')]
+    #[ORM\JoinColumn(nullable: false, onDelete: 'CASCADE')]
+    private ?User $user = null;
+
+    #[ORM\ManyToOne(inversedBy: 'media')]
+    #[ORM\JoinColumn(nullable: true, onDelete: 'CASCADE')]
+    private ?Album $album = null;
 
     public function getId(): ?int
     {
         return $this->id;
     }
 
-    public function getUser(): ?User
-    {
-        return $this->user;
-    }
-
-    public function setUser(?User $user): void
-    {
-        $this->user = $user;
-    }
-
-    public function getPath(): string
+    public function getPath(): ?string
     {
         return $this->path;
     }
 
-    public function setPath(string $path): void
+    public function setPath(?string $path): self
     {
         $this->path = $path;
+
+        return $this;
     }
 
     public function getTitle(): string
@@ -58,19 +55,35 @@ class Media
         return $this->title;
     }
 
-    public function setTitle(string $title): void
+    public function setTitle(string $title): self
     {
         $this->title = $title;
+
+        return $this;
     }
 
-    public function getFile(): ?UploadedFile
+    public function getDescription(): ?string
     {
-        return $this->file;
+        return $this->description;
     }
 
-    public function setFile(?UploadedFile $file): void
+    public function setDescription(?string $description): self
     {
-        $this->file = $file;
+        $this->description = $description;
+
+        return $this;
+    }
+
+    public function getUser(): ?User
+    {
+        return $this->user;
+    }
+
+    public function setUser(?User $user): self
+    {
+        $this->user = $user;
+
+        return $this;
     }
 
     public function getAlbum(): ?Album
@@ -78,8 +91,10 @@ class Media
         return $this->album;
     }
 
-    public function setAlbum(?Album $album): void
+    public function setAlbum(?Album $album): self
     {
         $this->album = $album;
+
+        return $this;
     }
 }

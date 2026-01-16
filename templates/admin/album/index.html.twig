@@ -1,24 +1,51 @@
 {% extends 'admin.html.twig' %}
 
 {% block admin %}
-    <div class="d-flex justify-content-between align-items-center">
-        <h1>Albums</h1>
-        <a href="{{ path('admin_album_add') }}" class="btn btn-primary">Ajouter</a>
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h1 class="h3">Gestion des albums</h1>
+        <a href="{{ path('admin_album_add') }}" class="btn btn-primary">
+            Ajouter un album
+        </a>
     </div>
-    <table class="table">
+
+    <table class="table table-striped align-middle">
         <thead>
         <tr>
             <th>Nom</th>
-            <th>Actions</th>
+            <th class="text-end">Actions</th>
         </tr>
         </thead>
         <tbody>
         {% for album in albums %}
             <tr>
                 <td>{{ album.name }}</td>
-                <td>
-                    <a href="{{ path('admin_album_update', {id: album.id}) }}" class="btn btn-warning">Modifier</a>
-                    <a href="{{ path('admin_album_delete', {id: album.id}) }}" class="btn btn-danger">Supprimer</a>
+
+                <td class="text-end">
+                    <a
+                     href="{{ path('admin_album_edit', { id: album.id }) }}"
+                     class="btn btn-sm btn-warning"
+                    >
+                        Modifier
+                    </a>
+
+                    {# BOUTON SUPPRESSION → MODAL #}
+                    <button
+                            type="button"
+                            class="btn btn-sm btn-danger"
+                            data-bs-toggle="modal"
+                            data-bs-target="#confirmDeleteModal"
+                            data-delete-url="{{ path('admin_album_delete', { id: album.id }) }}"
+                            data-delete-token="{{ csrf_token('delete_album_' ~ album.id) }}"
+                            data-delete-message="Êtes-vous sûr de vouloir supprimer l’album « {{ album.name }} » ? Cette action est irréversible."
+                    >
+                        Supprimer
+                    </button>
+                </td>
+            </tr>
+        {% else %}
+            <tr>
+                <td colspan="2" class="text-center text-muted">
+                    Aucun album trouvé.
                 </td>
             </tr>
         {% endfor %}

@@ -1,0 +1,25 @@
+parameters:
+    # Niveau d’analyse adapté à un projet Symfony existant
+    level: 5
+
+    # Analyse uniquement le code métier
+    paths:
+        - src
+
+    # Exclusions justifiées
+    excludePaths:
+        # Commandes CLI = outils internes hors périmètre fonctionnel
+        - src/Command/*
+        # Tests = déjà validés par PHPUnit (évite faux positifs)
+        - tests/*
+        # Dossiers techniques
+        - var/*
+        - vendor/*
+
+    # Évite les faux positifs basés sur les PHPDoc (Doctrine, tests)
+    treatPhpDocTypesAsCertain: false
+
+    # Faux positifs Doctrine classiques
+    ignoreErrors:
+        # IDs Doctrine gérés dynamiquement
+        - '#Property App\\Entity\\.*::\$id .*#'

@@ -1,38 +1,79 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<!-- https://phpunit.readthedocs.io/en/latest/configuration.html -->
-<phpunit xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-         xsi:noNamespaceSchemaLocation="vendor/phpunit/phpunit/phpunit.xsd"
-         backupGlobals="false"
-         colors="true"
-         bootstrap="tests/bootstrap.php"
-         convertDeprecationsToExceptions="false"
+<phpunit
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:noNamespaceSchemaLocation="https://schema.phpunit.de/10.5/phpunit.xsd"
+        bootstrap="vendor/autoload.php"
+        colors="true"
+        cacheDirectory=".phpunit.cache"
+        executionOrder="depends,defects"
+        failOnRisky="true"
+        failOnWarning="true"
 >
-    <php>
-        <ini name="display_errors" value="1" />
-        <ini name="error_reporting" value="-1" />
-        <server name="APP_ENV" value="test" force="true" />
-        <server name="SHELL_VERBOSITY" value="-1" />
-        <server name="SYMFONY_PHPUNIT_REMOVE" value="" />
-        <server name="SYMFONY_PHPUNIT_VERSION" value="9.5" />
-    </php>
 
+    <!-- ===================== -->
+    <!-- Test suites           -->
+    <!-- ===================== -->
     <testsuites>
-        <testsuite name="Project Test Suite">
-            <directory>tests</directory>
+        <testsuite name="Application">
+            <directory>Tests</directory>
         </testsuite>
     </testsuites>
 
-    <coverage processUncoveredFiles="true">
+    <!-- ===================== -->
+    <!-- Coverage configuration -->
+    <!-- ===================== -->
+    <coverage>
+        <report>
+            <!-- Rapport HTML lisible (à déposer dans le repo) -->
+            <html outputDirectory="public/coverage"/>
+
+            <!-- Rapport XML (analyse fine, CI, justification) -->
+            <clover outputFile="public/coverage/coverage.xml"/>
+        </report>
+    </coverage>
+
+    <!-- ===================== -->
+    <!-- Source (Coverage)     -->
+    <!-- ===================== -->
+    <source>
         <include>
             <directory suffix=".php">src</directory>
         </include>
-    </coverage>
 
-    <listeners>
-        <listener class="Symfony\Bridge\PhpUnit\SymfonyTestsListener" />
-    </listeners>
+        <!--
+            Exclusions JUSTIFIÉES :
+            - Code framework / technique
+            - Code non métier
+            - Code généré ou non testable unitairement
+        -->
+        <exclude>
+            <directory>src/Controller</directory>
+            <directory>src/Command</directory>
+            <directory>src/DataFixtures</directory>
+            <directory>src/Migrations</directory>
+            <file>src/Kernel.php</file>
+        </exclude>
+    </source>
 
-    <extensions>
-    </extensions>
+    <!-- ===================== -->
+    <!-- PHP environment       -->
+    <!-- ===================== -->
+    <php>
+        <!-- Symfony -->
+        <env name="APP_ENV" value="test"/>
+        <env name="APP_DEBUG" value="1"/>
+        <env name="KERNEL_CLASS" value="App\Kernel"/>
+        <env name="SHELL_VERBOSITY" value="-1"/>
+
+        <!-- Désactivation des dépréciations (migration SF 7.4) -->
+        <env name="SYMFONY_DEPRECATIONS_HELPER" value="disabled"/>
+
+        <!-- Doctrine : base STRICTEMENT dédiée aux tests -->
+        <env
+                name="DATABASE_URL"
+                value="mysql://admludo:Coqwheel!9729@127.0.0.1:3306/inazaoui_test?serverVersion=8.0&amp;charset=utf8mb4"
+        />
+    </php>
+
 </phpunit>

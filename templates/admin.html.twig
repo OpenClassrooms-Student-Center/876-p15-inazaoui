@@ -1,35 +1,151 @@
 {% extends 'base.html.twig' %}
 
+{# ============================================================
+   CONTENU PRINCIPAL
+   ============================================================ #}
 {% block body %}
     <div class="container-fluid">
         <div class="row">
+
+            {# =========================
+           SIDEBAR ADMIN
+        ========================= #}
             <nav class="col-md-3 col-lg-2 d-none d-md-block bg-dark sidebar min-vh-100 p-4">
-                <div class="position-sticky">
-                    <h1 class="text-white">Admin</h1>
-                    <ul class="nav flex-column">
+                <div class="position-sticky d-flex flex-column h-100">
+
+                    {# ===== TITRE ===== #}
+                    <h1 class="text-white mb-4">Admin</h1>
+
+                    {# ===== MENU PRINCIPAL ===== #}
+                    <ul class="nav flex-column gap-1 flex-grow-1">
+
                         <li class="nav-item">
-                            <a class="nav-link" href="{{ path('admin_media_index') }}">
-                                Medias
+                            <a
+                                    class="nav-link {% if app.request.attributes.get('_route') starts with 'admin_media' %}active text-white{% else %}text-secondary{% endif %}"
+                                    href="{{ path('admin_media_index') }}"
+                            >
+                                Médias
                             </a>
                         </li>
+
                         {% if is_granted('ROLE_ADMIN') %}
                             <li class="nav-item">
-                                <a class="nav-link" href="{{ path('admin_album_index') }}">
+                                <a
+                                        class="nav-link {% if app.request.attributes.get('_route') starts with 'admin_album' %}active text-white{% else %}text-secondary{% endif %}"
+                                        href="{{ path('admin_album_index') }}"
+                                >
                                     Albums
                                 </a>
                             </li>
+
                             <li class="nav-item">
-                                <a class="nav-link" href="">
+                                <a
+                                        class="nav-link {% if app.request.attributes.get('_route') starts with 'admin_users' %}active text-white{% else %}text-secondary{% endif %}"
+                                        href="{{ path('admin_users_index') }}"
+                                >
                                     Invités
                                 </a>
                             </li>
                         {% endif %}
                     </ul>
+
+                    {# ===== ACTION BAS DE SIDEBAR ===== #}
+                    <hr class="text-secondary">
+
+                    <ul class="nav flex-column">
+                        <li class="nav-item">
+                            <a
+                                    class="nav-link text-warning"
+                                    href="{{ path('logout') }}"
+                                    title="Retour au portail principal"
+                            >
+                                <i class="fa-solid fa-arrow-right-from-bracket me-2"></i>
+                                Portail
+                            </a>
+                        </li>
+                    </ul>
+
                 </div>
             </nav>
+
+            {# =========================
+               CONTENU PRINCIPAL
+            ========================= #}
             <main class="col-md-9 ms-sm-auto col-lg-10 p-4">
+
+                {# ===== FLASH MESSAGES ===== #}
+                {% for message in app.flashes('success') %}
+                    <div class="alert alert-success alert-dismissible fade show" role="alert">
+                        {{ message }}
+                        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                    </div>
+                {% endfor %}
+
+                {% for message in app.flashes('danger') %}
+                    <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                        {{ message }}
+                        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                    </div>
+                {% endfor %}
+
+                {% for message in app.flashes('warning') %}
+                    <div class="alert alert-warning alert-dismissible fade show" role="alert">
+                        {{ message }}
+                        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                    </div>
+                {% endfor %}
+
+                {# ===== CONTENU DES PAGES ADMIN ===== #}
                 {% block admin %}{% endblock %}
+
             </main>
         </div>
     </div>
+
+    {# =========================
+       MODALE CONFIRMATION DELETE
+       ========================= #}
+    <div
+            class="modal fade"
+            id="confirmDeleteModal"
+            tabindex="-1"
+            aria-hidden="true"
+    >
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+
+                <div class="modal-header">
+                    <h5 class="modal-title">Confirmation de suppression</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+
+                <div class="modal-body">
+                    <p id="confirmDeleteMessage">
+                        Êtes-vous sûr de vouloir supprimer cet élément ?
+                    </p>
+                </div>
+
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+                        Annuler
+                    </button>
+
+                    <form id="confirmDeleteForm" method="post">
+                        <input type="hidden" name="_token" id="confirmDeleteToken">
+                        <button type="submit" class="btn btn-danger">
+                            Supprimer
+                        </button>
+                    </form>
+                </div>
+
+            </div>
+        </div>
+    </div>
+{% endblock %}
+
+{# ============================================================
+   CHARGEMENT DES JAVASCRIPTS
+   ============================================================ #}
+{% block javascripts %}
+    {{ parent() }}
 {% endblock %}

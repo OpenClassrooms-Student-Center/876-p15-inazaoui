@@ -103,3 +103,37 @@ footer {
     line-height: 18.23px;
     text-align: right;
 }
+
+.status-dot {
+    width: 12px;
+    height: 12px;
+    border-radius: 50%;
+    display: inline-block;
+}
+
+.status-dot--green {
+    background-color: #28a745;
+}
+
+.status-dot--red {
+    background-color: #dc3545;
+}
+
+.form-horizontal .col-form-label {
+    font-weight: 500;
+}
+
+.card {
+    border-radius: 0.5rem;
+}
+
+.card-header {
+    background-color: #f8f9fa;
+    font-weight: 600;
+}
+
+.card-body {
+    padding: 2rem;
+}
+
+

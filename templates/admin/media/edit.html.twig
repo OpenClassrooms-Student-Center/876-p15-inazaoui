@@ -1,0 +1,33 @@
+{% extends 'admin.html.twig' %}
+
+{% block admin %}
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h1 class="h3">Modifier le média</h1>
+        <a href="{{ path('admin_media_index') }}" class="btn btn-outline-primary">
+            Retour
+        </a>
+    </div>
+
+    {% if media.path %}
+        <div class="mb-3">
+            <img src="{{ asset(media.path) }}" class="img-thumbnail" style="max-width: 200px;">
+        </div>
+    {% endif %}
+
+    {{ form_start(form) }}
+
+    {% if is_granted('ROLE_ADMIN') %}
+        {{ form_row(form.user) }}
+        {{ form_row(form.album) }}
+    {% endif %}
+
+    {{ form_row(form.title) }}
+    {{ form_row(form.description) }}
+    {{ form_row(form.file) }}
+
+    <button class="btn btn-success mt-3">
+        Enregistrer les modifications
+    </button>
+
+    {{ form_end(form) }}
+{% endblock %}

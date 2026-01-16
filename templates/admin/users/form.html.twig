@@ -1,0 +1,103 @@
+{% extends 'admin.html.twig' %}
+
+{% block admin %}
+
+    <div class="container-fluid">
+
+        {# Alignement vertical avec le titre Admin #}
+        <div class="row justify-content-center pt-4">
+
+            <div class="col-12 col-md-10 col-lg-8 col-xl-6">
+
+                <div class="card shadow-sm">
+
+                    <div class="card-header text-center">
+                        <h4 class="mb-0">
+                            Création ou modification d’un profil invité
+                        </h4>
+                    </div>
+
+                    <div class="card-body">
+
+                        {{ form_start(form, { attr: { class: 'form-horizontal' } }) }}
+
+                        {# EMAIL #}
+                        <div class="row mb-3">
+                            <label class="col-sm-4 col-form-label">
+                                {{ form_label(form.email) }}
+                            </label>
+                            <div class="col-sm-8">
+                                {{ form_widget(form.email, { attr: { class: 'form-control' } }) }}
+                                {{ form_errors(form.email) }}
+                            </div>
+                        </div>
+
+                        {# PRÉNOM #}
+                        <div class="row mb-3">
+                            <label class="col-sm-4 col-form-label">
+                                {{ form_label(form.prenom) }}
+                            </label>
+                            <div class="col-sm-8">
+                                {{ form_widget(form.prenom, { attr: { class: 'form-control' } }) }}
+                                {{ form_errors(form.prenom) }}
+                            </div>
+                        </div>
+
+                        {# NOM #}
+                        <div class="row mb-3">
+                            <label class="col-sm-4 col-form-label">
+                                {{ form_label(form.nom) }}
+                            </label>
+                            <div class="col-sm-8">
+                                {{ form_widget(form.nom, { attr: { class: 'form-control' } }) }}
+                                {{ form_errors(form.nom) }}
+                            </div>
+                        </div>
+
+                        {# MOT DE PASSE #}
+                        <div class="row mb-3">
+                            <label class="col-sm-4 col-form-label">
+                                {{ form_label(form.plainPassword) }}
+                            </label>
+                            <div class="col-sm-8">
+                                {{ form_widget(form.plainPassword, { attr: { class: 'form-control' } }) }}
+                                {% if form.plainPassword.vars.help %}
+                                    <div class="form-text">
+                                        {{ form.plainPassword.vars.help }}
+                                    </div>
+                                {% endif %}
+                                {{ form_errors(form.plainPassword) }}
+                            </div>
+                        </div>
+
+                        {# CHECKBOX ACTIF #}
+                        <div class="row mb-4">
+                            <div class="col-sm-4"></div>
+                            <div class="col-sm-8">
+                                <div class="form-check">
+                                    {{ form_widget(form.userActif, { attr: { class: 'form-check-input' } }) }}
+                                    {{ form_label(form.userActif, null, { label_attr: { class: 'form-check-label' } }) }}
+                                </div>
+                                {{ form_errors(form.userActif) }}
+                            </div>
+                        </div>
+
+                        <div class="text-end">
+                            <button class="btn btn-primary px-4">
+                                Enregistrer
+                            </button>
+                            <a href="{{ path('admin_users_index') }}" class="btn btn-outline-secondary ms-2">
+                                Annuler
+                            </a>
+                        </div>
+
+                        {{ form_end(form) }}
+
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </div>
+
+{% endblock %}

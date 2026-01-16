@@ -1,0 +1,21 @@
+# ===============================
+# AUTHENTIFICATION / SÉCURITÉ
+# ===============================
+
+Invalid credentials.: Login ou mot de passe invalide
+
+Account is disabled.: Votre compte est désactivé
+Account is locked.: Votre compte est verrouillé
+Account has expired.: Votre compte a expiré
+Credentials have expired.: Vos identifiants ont expiré
+
+User account is disabled.: Votre compte est désactivé
+User credentials have expired.: Vos identifiants ont expiré
+
+Too many failed login attempts, please try again later.: Trop de tentatives de connexion. Veuillez réessayer plus tard.
+
+# ===============================
+# AUTORISATION
+# ===============================
+
+Access Denied.: Accès refusé

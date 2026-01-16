@@ -1,36 +1,65 @@
 security:
-    enable_authenticator_manager: true
-    password_hashers:
-        Symfony\Component\Security\Core\User\PasswordAuthenticatedUserInterface: 'auto'
-    providers:
-        app_user_provider:
-            memory:
-                users:
-                    ina: { password: '$2y$13$7JS0ehfU8vZhB3Q8o1sPGuoQxkiPGXRGgrAizmNfI5Sgy.Dqt9xoW', roles: ['ROLE_ADMIN'] }
-    firewalls:
-        dev:
-            pattern: ^/(_(profiler|wdt)|css|images|js)/
-            security: false
-        main:
-            lazy: true
-            provider: app_user_provider
-            form_login:
-                login_path: admin_login
-                check_path: admin_login
-    role_hierarchy:
-        ROLE_ADMIN: ROLE_USER
-    access_control:
-        - { path: ^/admin, roles: ROLE_USER }
+  password_hashers:
+    App\Entity\User:
+      algorithm: auto
 
-when@test:
-    security:
-        password_hashers:
-            # By default, password hashers are resource intensive and take time. This is
-            # important to generate secure password hashes. In tests however, secure hashes
-            # are not important, waste resources and increase test times. The following
-            # reduces the work factor to the lowest possible values.
-            Symfony\Component\Security\Core\User\PasswordAuthenticatedUserInterface:
-                algorithm: auto
-                cost: 4 # Lowest possible value for bcrypt
-                time_cost: 3 # Lowest possible value for argon
-                memory_cost: 10 # Lowest possible value for argon
+  providers:
+    app_user_provider:
+      entity:
+        class: App\Entity\User
+        property: email
+
+  firewalls:
+
+    # =========================
+    # FIREWALL DEV
+    # =========================
+    dev:
+      pattern: ^/(_(profiler|wdt)|css|images|js)/
+      security: false
+
+    # =========================
+    # FIREWALL PRINCIPAL
+    # =========================
+    main:
+      pattern: ^/
+      provider: app_user_provider
+      lazy: true
+      stateless: false
+
+      form_login:
+        login_path: login
+        check_path: /login
+        username_parameter: email
+        password_parameter: password
+        enable_csrf: true
+        success_handler: App\Security\LoginSuccessHandler
+
+      logout:
+        path: logout
+        target: home
+
+  # =========================
+  # HIÉRARCHIE DES RÔLES
+  # =========================
+  role_hierarchy:
+    ROLE_ADMIN: ROLE_USER
+
+  # =========================
+  # CONTRÔLE D’ACCÈS
+  # =========================
+  access_control:
+
+    # ---------- Pages publiques ----------
+    - { path: ^/$, roles: PUBLIC_ACCESS }
+    - { path: ^/(guests|portfolio|about)$, roles: PUBLIC_ACCESS }
+    - { path: ^/login$, roles: PUBLIC_ACCESS }
+    - { path: ^/register, roles: PUBLIC_ACCESS }
+
+    # ---------- Médias ----------
+    # ROLE_USER et ROLE_ADMIN → accès à la gestion des médias
+    - { path: ^/admin/media(/.*)?$, roles: ROLE_USER }
+
+    # ---------- Administration ----------
+    # Le reste de /admin est STRICTEMENT réservé aux ADMIN
+    - { path: ^/admin(/.*)?$, roles: ROLE_ADMIN }

@@ -1,63 +1,128 @@
 {% extends 'admin.html.twig' %}
 
 {% block admin %}
-    <div class="d-flex justify-content-between align-items-center">
-        <h1>Medias</h1>
-        <a href="{{ path('admin_media_add') }}" class="btn btn-primary">Ajouter</a>
+    <div class="d-flex justify-content-between align-items-center mb-3">
+        <h1>
+            {% if is_granted('ROLE_ADMIN') %}
+                Médias
+            {% else %}
+                Mes médias
+            {% endif %}
+        </h1>
+
+        <a href="{{ path('admin_media_add') }}" class="btn btn-primary">
+            Ajouter
+        </a>
     </div>
-    <table class="table">
+
+    <table class="table table-striped align-middle">
         <thead>
-            <tr>
-                <th>Image</th>
-                <th>Titre</th>
-                {% if is_granted('ROLE_ADMIN') %}
-                    <th>Artiste</th>
-                    <th>Album</th>
-                {% endif %}
-                <th>Actions</th>
-            </tr>
+        <tr>
+            <th>Image</th>
+            <th>Titre</th>
+
+            {% if is_granted('ROLE_ADMIN') %}
+                <th>Artiste</th>
+                <th>Album</th>
+            {% endif %}
+
+            <th class="text-end">Actions</th>
+        </tr>
         </thead>
+
         <tbody>
-            {% for media in medias %}
-                <tr>
-                    <td><img src="{{ asset(media.path) }}" width="75" /></td>
-                    <td>{{ media.title }}</td>
-                    {% if is_granted('ROLE_ADMIN') %}
-                        <td>{{ media.user.name }}</td>
-                        <td>{{ media.album.name ?? '' }}</td>
-                    {% endif %}
+        {% for media in medias %}
+            <tr>
+                <td>
+                    <img
+                            src="{{ asset(media.path) }}"
+                            width="75"
+                            alt="image"
+                            class="img-thumbnail"
+                    />
+                </td>
+
+                <td>{{ media.title }}</td>
+
+                {% if is_granted('ROLE_ADMIN') %}
                     <td>
-                        <a href="{{ path('admin_media_delete', {id: media.id}) }}" class="btn btn-danger">Supprimer</a>
+                        {% if media.user %}
+                            {{ media.user.prenom }} {{ media.user.nom }}
+                        {% else %}
+                            <em class="text-muted">Utilisateur supprimé</em>
+                        {% endif %}
                     </td>
-                </tr>
-            {% endfor %}
+
+                    <td>{{ media.album.name ?? '' }}</td>
+                {% endif %}
+
+                <td class="text-end">
+                    <a
+                            href="{{ path('admin_media_edit', { id: media.id }) }}"
+                            class="btn btn-sm btn-success me-2"
+                    >
+                        Éditer
+                    </a>
+
+                    <button
+                            type="button"
+                            class="btn btn-sm btn-danger"
+                            data-bs-toggle="modal"
+                            data-bs-target="#confirmDeleteModal"
+                            data-delete-url="{{ path('admin_media_delete', { id: media.id }) }}"
+                            data-delete-token="{{ csrf_token('delete_media_' ~ media.id) }}"
+                            data-delete-message="Voulez-vous vraiment supprimer cette photo ?"
+                    >
+                        Supprimer
+                    </button>
+                </td>
+            </tr>
+        {% else %}
+            <tr>
+                <td
+                        colspan="{{ is_granted('ROLE_ADMIN') ? 5 : 3 }}"
+                        class="text-center text-muted"
+                >
+                    Aucun média trouvé.
+                </td>
+            </tr>
+        {% endfor %}
         </tbody>
     </table>
-    {% set totalPages = (total / 50)|round(0, 'ceil') %}
 
     <nav aria-label="Page navigation">
-        <ul class="pagination">
+        <ul class="pagination justify-content-center">
             {% if page > 1 %}
                 <li class="page-item">
-                    <a class="page-link" href="{{ path('admin_media_index', {page: 1}) }}">Première page</a>
+                    <a class="page-link" href="{{ path('admin_media_index', { page: 1 }) }}">
+                        Première
+                    </a>
                 </li>
                 <li class="page-item">
-                    <a class="page-link" href="{{ path('admin_media_index', {page: page - 1}) }}">Précédent</a>
+                    <a class="page-link" href="{{ path('admin_media_index', { page: page - 1 }) }}">
+                        Précédent
+                    </a>
                 </li>
             {% endif %}
 
             {% for i in range(max(1, page - 3), min(totalPages, page + 3)) %}
                 <li class="page-item {% if i == page %}active{% endif %}">
-                    <a class="page-link" href="{{ path('admin_media_index', {page: i}) }}">{{ i }}</a>
+                    <a class="page-link" href="{{ path('admin_media_index', { page: i }) }}">
+                        {{ i }}
+                    </a>
                 </li>
             {% endfor %}
 
             {% if page < totalPages %}
                 <li class="page-item">
-                    <a class="page-link" href="{{ path('admin_media_index', {page: page + 1}) }}">Suivant</a>
+                    <a class="page-link" href="{{ path('admin_media_index', { page: page + 1 }) }}">
+                        Suivant
+                    </a>
                 </li>
                 <li class="page-item">
-                    <a class="page-link" href="{{ path('admin_media_index', {page: totalPages}) }}">Dernière page</a>
+                    <a class="page-link" href="{{ path('admin_media_index', { page: totalPages }) }}">
+                        Dernière
+                    </a>
                 </li>
             {% endif %}
         </ul>

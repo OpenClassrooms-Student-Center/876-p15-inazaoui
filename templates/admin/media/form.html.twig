@@ -1,0 +1,123 @@
+{% extends 'admin.html.twig' %}
+
+{% block admin %}
+
+<div class="container-fluid">
+
+    <div class="row justify-content-center pt-4">
+        <div class="col-12 col-md-10 col-lg-8 col-xl-6">
+
+            <div class="card shadow-sm">
+
+                {# ===== HEADER ===== #}
+                    <div class="card-header text-center">
+                    <h4 class="mb-0">
+                        {{ isEdit ? 'Modification du média' : 'Ajout d’un média' }}
+                    </h4>
+                </div>
+
+                <div class="card-body">
+
+                    {# ===== APERÇU IMAGE (édition uniquement) ===== #}
+                        {% if isEdit and media.path %}
+                        <div class="text-center mb-4">
+                            <img
+                                src="{{ asset(media.path) }}"
+                                class="img-thumbnail"
+                                style="max-width: 220px;"
+                                alt="Aperçu du média"
+                                    >
+                        </div>
+                    {% endif %}
+
+                    {{ form_start(form, { attr: { class: 'form-horizontal' } }) }}
+
+                    {# ===== USER / ALBUM (ADMIN UNIQUEMENT) ===== #}
+                        {% if is_granted('ROLE_ADMIN') %}
+
+                        <div class="row mb-3">
+                            <label class="col-sm-4 col-form-label">
+                                {{ form_label(form.user) }}
+                            </label>
+                            <div class="col-sm-8">
+                                {{ form_widget(form.user, { attr: { class: 'form-select' } }) }}
+                                {{ form_errors(form.user) }}
+                            </div>
+                        </div>
+
+                        <div class="row mb-3">
+                            <label class="col-sm-4 col-form-label">
+                                {{ form_label(form.album) }}
+                            </label>
+                            <div class="col-sm-8">
+                                {{ form_widget(form.album, { attr: { class: 'form-select' } }) }}
+                                {{ form_errors(form.album) }}
+                            </div>
+                        </div>
+
+                    {% endif %}
+
+                    {# ===== TITRE ===== #}
+                        <div class="row mb-3">
+                        <label class="col-sm-4 col-form-label">
+                            {{ form_label(form.title) }}
+                        </label>
+                        <div class="col-sm-8">
+                            {{ form_widget(form.title, { attr: { class: 'form-control' } }) }}
+                            {{ form_errors(form.title) }}
+                        </div>
+                    </div>
+
+                    {# ===== DESCRIPTION ===== #}
+                        <div class="row mb-3">
+                        <label class="col-sm-4 col-form-label">
+                            {{ form_label(form.description) }}
+                        </label>
+                        <div class="col-sm-8">
+                            {{ form_widget(form.description, { attr: { class: 'form-control', rows: 4 } }) }}
+                            {{ form_errors(form.description) }}
+                        </div>
+                    </div>
+
+                    {# ===== FICHIER ===== #}
+                        <div class="row mb-4">
+                        <label class="col-sm-4 col-form-label">
+                            {{ form_label(form.file) }}
+                        </label>
+                        <div class="col-sm-8">
+                            {{ form_widget(form.file, { attr: { class: 'form-control' } }) }}
+
+                            {% if isEdit %}
+                                <div class="form-text">
+                    Laisser vide pour conserver le fichier existant.
+                                </div>
+                            {% endif %}
+
+                            {{ form_errors(form.file) }}
+                        </div>
+                    </div>
+
+                    {# ===== ACTIONS ===== #}
+                        <div class="text-end">
+                        <button class="btn btn-primary px-4">
+                            {{ isEdit ? 'Enregistrer les modifications' : 'Créer le média' }}
+                        </button>
+
+                        <a
+                            href="{{ path('admin_media_index') }}"
+                            class="btn btn-outline-secondary ms-2"
+                    >
+                    Annuler
+                        </a>
+                    </div>
+
+                    {{ form_end(form) }}
+
+                </div>
+            </div>
+
+        </div>
+    </div>
+</div>
+
+{% endblock %}

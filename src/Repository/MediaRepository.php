@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Repository;
 
 use App\Entity\Media;
@@ -8,11 +10,6 @@ use Doctrine\Persistence\ManagerRegistry;
 
 /**
  * @extends ServiceEntityRepository<Media>
- *
- * @method Media|null find($id, $lockMode = null, $lockVersion = null)
- * @method Media|null findOneBy(array $criteria, array $orderBy = null)
- * @method Media[]    findAll()
- * @method Media[]    findBy(array $criteria, array $orderBy = null, $limit = null, $offset = null)
  */
 class MediaRepository extends ServiceEntityRepository
 {
@@ -21,28 +18,60 @@ class MediaRepository extends ServiceEntityRepository
         parent::__construct($registry, Media::class);
     }
 
-//    /**
-//     * @return Media[] Returns an array of Media objects
-//     */
-//    public function findByExampleField($value): array
-//    {
-//        return $this->createQueryBuilder('m')
-//            ->andWhere('m.exampleField = :val')
-//            ->setParameter('val', $value)
-//            ->orderBy('m.id', 'ASC')
-//            ->setMaxResults(10)
-//            ->getQuery()
-//            ->getResult()
-//        ;
-//    }
+    /**
+     * Médias visibles (utilisateur actif uniquement).
+     *
+     * @param array<string, mixed> $criteria
+     *
+     * @return list<Media>
+     */
+    public function findVisibleMedias(
+        array $criteria = [],
+        ?int $limit = null,
+        ?int $offset = null,
+    ): array {
+        $qb = $this->createQueryBuilder('m')
+            ->innerJoin('m.user', 'u')
+            ->andWhere('u.userActif = true')
+            ->addOrderBy('m.id', 'ASC');
 
-//    public function findOneBySomeField($value): ?Media
-//    {
-//        return $this->createQueryBuilder('m')
-//            ->andWhere('m.exampleField = :val')
-//            ->setParameter('val', $value)
-//            ->getQuery()
-//            ->getOneOrNullResult()
-//        ;
-//    }
+        // critères dynamiques (ex: user courant)
+        foreach ($criteria as $field => $value) {
+            $qb->andWhere(sprintf('m.%s = :%s', $field, $field))
+                ->setParameter($field, $value);
+        }
+
+        if (null !== $limit) {
+            $qb->setMaxResults($limit);
+        }
+
+        if (null !== $offset) {
+            $qb->setFirstResult($offset);
+        }
+
+        /** @var list<Media> $result */
+        $result = $qb->getQuery()->getResult();
+
+        return $result;
+    }
+
+    /**
+     * Compteur de médias visibles.
+     *
+     * @param array<string, mixed> $criteria
+     */
+    public function countVisibleMedias(array $criteria = []): int
+    {
+        $qb = $this->createQueryBuilder('m')
+            ->select('COUNT(m.id)')
+            ->innerJoin('m.user', 'u')
+            ->andWhere('u.userActif = true');
+
+        foreach ($criteria as $field => $value) {
+            $qb->andWhere(sprintf('m.%s = :%s', $field, $field))
+                ->setParameter($field, $value);
+        }
+
+        return (int) $qb->getQuery()->getSingleScalarResult();
+    }
 }

@@ -3,16 +3,28 @@
 {% block front %}
     <div class="row">
         <div class="col-12">
-            <h3 class="mb-4">{{ guest.name }}</h3>
-            <p class="mb-5 w-100">{{ guest.description }}</p>
-            <div class="row">
-                {% for media in guest.medias %}
-                    <div class="col-4 media mb-4">
-                        <img class="w-100" src="{{ asset(media.path) }}" alt="{{ media.title }}">
-                    </div>
-                {% endfor %}
-            </div>
+            <h3 class="mb-4">{{ guest.prenom }} {{ guest.nom }}</h3>
+
+            {% if guest.medias|length > 0 %}
+                <div class="row">
+                    {% for media in guest.medias %}
+                        <div class="col-4 media mb-4">
+                            <img
+                                    class="w-100"
+                                    src="{{ asset(media.path) }}"
+                                    alt="{{ media.title }}"
+                            >
+                            {% if media.description %}
+                                <p class="mt-2 text-muted">
+                                    {{ media.description }}
+                                </p>
+                            {% endif %}
+                        </div>
+                    {% endfor %}
+                </div>
+            {% else %}
+                <p>Aucun média pour cet invité.</p>
+            {% endif %}
         </div>
     </div>
 {% endblock %}
-
