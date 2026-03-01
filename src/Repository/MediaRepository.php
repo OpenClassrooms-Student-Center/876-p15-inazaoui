@@ -21,6 +21,27 @@ class MediaRepository extends ServiceEntityRepository
         parent::__construct($registry, Media::class);
     }
 
+    public function findForActiveGuests(): array
+    { 
+        $connection = $this->getEntityManager()->getConnection();
+        
+        $ids = $connection->fetchFirstColumn(
+            'SELECT m.id FROM media m
+            INNER JOIN "user" u ON u.id = m.user_id 
+            WHERE u.is_active = true 
+            AND ((u.roles::jsonb) @> :guest::jsonb)
+            ORDER BY m.id ASC',
+            ['guest' => '["ROLE_GUEST"]']
+        );
+
+        return $this->createQueryBuilder('m')
+            ->andWhere('m.id IN (:ids)')
+            ->setParameter('ids', $ids)
+            ->orderBy('m.id', 'ASC')
+            ->getQuery()
+            ->getResult();
+    }
+
 //    /**
 //     * @return Media[] Returns an array of Media objects
 //     */

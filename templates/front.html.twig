@@ -1,45 +1,66 @@
 {% extends 'base.html.twig' %}
 
 {% block stylesheets %}
-    {{ parent() }}
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=DM+Mono:ital,wght@0,300;0,400;0,500;1,300;1,400;1,500&display=swap" rel="stylesheet">
-    <link href="{{ asset('style.css') }}" rel="stylesheet">
+	{{ parent() }}
+	<link rel="preconnect" href="https://fonts.googleapis.com">
+	<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+	<link href="https://fonts.googleapis.com/css2?family=DM+Mono:ital,wght@0,300;0,400;0,500;1,300;1,400;1,500&display=swap" rel="stylesheet">
+	<link href="{{ asset('style.min.css') }}" rel="stylesheet">
 {% endblock %}
 
 {% block body %}
-    <header>
-        <nav>
-            <div class="container">
-                <div class="d-flex justify-content-between align-items-center py-4">
-                    <a href="{{ path('home') }}">
-                        <img src="{{ asset('images/logo.png') }}" alt="Ina Zaoui">
-                    </a>
-                    <ul class="nav">
-                        <li class="nav-item">
-                            <a class="nav-link" href="{{ path('guests') }}">Invités</a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link" href="{{ path('portfolio') }}">Portfolio</a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link" href="{{ path('about') }}">Qui suis-je ?</a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link" href="{{ path('admin_login') }}">Connexion</a>
-                        </li>
-                    </ul>
-                </div>
-            </div>
-        </nav>
-    </header>
-    <main>
-        <div class="container py-4">
-            {% block front %}{% endblock %}
-        </div>
-    </main>
-    <footer class="py-4 text-center">
-        Ina Zaoui copyright 2024©
-    </footer>
+	<header>
+		<nav>
+			<div class="container">
+				<div class="d-flex justify-content-between align-items-center py-4">
+					<a href="{{ path('home') }}">
+						<img src="{{ asset('images/logo.png') }}" alt="Ina Zaoui">
+					</a>
+					<ul class="nav">
+						<li class="nav-item">
+							<a class="nav-link" href="{{ path('guests') }}">Invités</a>
+						</li>
+						<li class="nav-item">
+							<a class="nav-link" href="{{ path('portfolio') }}">Portfolio</a>
+						</li>
+						<li class="nav-item">
+							<a class="nav-link" href="{{ path('about') }}">Qui suis-je ?</a>
+						</li>
+						{% if is_granted('IS_AUTHENTICATED_FULLY') %}
+							<li class="nav-item">
+								<a class="nav-link" href="{{ path('admin_media_index') }}">Dashboard</a>
+							</li>
+						{% endif %}
+						<li class="nav-item">
+							{% if is_granted('IS_AUTHENTICATED_FULLY') %}
+								<a class="nav-link" href="{{ path('app_logout') }}">Déconnexion</a>
+							{% else %}
+								<a class="nav-link" href="{{ path('app_login') }}">Connexion</a>
+							{% endif %}
+						</li>
+					</ul>
+				</div>
+			</div>
+		</nav>
+	</header>
+	<main>
+		<div class="container mt-3">
+			{% for label, messages in app.flashes %}
+				{% for message in messages %}
+					<div class="alert alert-{{ label }} alert-dismissible fade show" role="alert">
+						{{ message }}
+						<button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+					</div>
+				{% endfor %}
+			{% endfor %}
+		</div>
+		<div class="container py-4">
+			{% block front %}{% endblock %}
+		</div>
+	</main>
+	<footer class="py-4 text-center">
+		Ina Zaoui copyright
+		{{ "now"|date("Y") }}©
+
+	</footer>
 {% endblock %}

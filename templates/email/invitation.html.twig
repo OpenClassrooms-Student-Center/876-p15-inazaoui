@@ -1,0 +1,16 @@
+{% extends 'base.html.twig' %}
+
+{% block body %}
+	<p>Salut
+		{{ guestName }},</p>
+	<p>J’ai le plaisir de t’inviter sur
+		<a href="{{ siteUrl }}">mon site</a>, un espace créé pour promouvoir les jeunes photographes et mettre en lumière leurs projets.</p>
+	<p>Pour activer ton compte, clique le lien ci-dessous:</p>
+	<a href="{{ invitationUrl }}">Lien d'activation</a>
+	<p>
+		<strong>A noter:
+		</strong>le délai d'activation est de {{ expiredAt }} heures.</p>
+	<p>Ensuite, tu pourras publier tes photos, présenter ton style et construire ton portfolio. C’est ton espace, ton univers, ta vitrine.</p>
+	<p>Bienvenue parmi nous,</p>
+	<p>Ina Zaoui</p>
+{% endblock %}

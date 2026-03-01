@@ -1,12 +1,11 @@
 security:
-    enable_authenticator_manager: true
     password_hashers:
         Symfony\Component\Security\Core\User\PasswordAuthenticatedUserInterface: 'auto'
     providers:
         app_user_provider:
-            memory:
-                users:
-                    ina: { password: '$2y$13$7JS0ehfU8vZhB3Q8o1sPGuoQxkiPGXRGgrAizmNfI5Sgy.Dqt9xoW', roles: ['ROLE_ADMIN'] }
+            entity:
+                class: App\Entity\User
+                property: email
     firewalls:
         dev:
             pattern: ^/(_(profiler|wdt)|css|images|js)/
@@ -15,12 +14,18 @@ security:
             lazy: true
             provider: app_user_provider
             form_login:
-                login_path: admin_login
-                check_path: admin_login
+                login_path: app_login
+                check_path: app_login
+                enable_csrf: true
+            user_checker: App\Security\UserChecker
+            logout:
+                path: app_logout
     role_hierarchy:
         ROLE_ADMIN: ROLE_USER
     access_control:
-        - { path: ^/admin, roles: ROLE_USER }
+        - { path: ^/set-password, roles: PUBLIC_ACCESS}
+        - { path: ^/admin/media, roles: ROLE_USER }
+        - { path: ^/admin, roles: ROLE_ADMIN }
 
 when@test:
     security:

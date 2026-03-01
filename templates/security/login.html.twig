@@ -1,0 +1,27 @@
+{% extends 'security/auth.html.twig' %}
+
+{% block auth_title %}Connexion
+{% endblock %}
+
+{% block auth_alerts %}
+	{% if error %}
+		<div class="alert alert-danger" role="alert">
+			{{ error.messageKey|trans(error.messageData, 'security') }}
+		</div>
+	{% endif %}
+{% endblock %}
+
+{% block auth_form %}
+	<form method="post" action="{{ path('app_login') }}">
+		<div class="mb-3">
+			<label for="email" class="form-label">Email</label>
+			<input type="email" class="form-control" id="email" name="_username" value="{{ last_username }}" required>
+		</div>
+		<div class="mb-3">
+			<label for="password" class="form-label">Mot de passe</label>
+			<input type="password" class="form-control" id="password" name="_password" required>
+		</div>
+		<input type="hidden" name="_csrf_token" value="{{ csrf_token('authenticate') }}">
+		<button type="submit" class="btn btn-primary d-block mx-auto my-3">Connexion</button>
+	</form>
+{% endblock %}

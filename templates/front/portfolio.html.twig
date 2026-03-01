@@ -20,8 +20,15 @@
             </div>
             <div class="row">
                 {% for media in medias %}
+                {% set isFirst = loop.first %}
                     <div class="col-4 media mb-4">
-                        <img class="w-100" src="{{ asset(media.path) }}" alt="{{ media.title }}">
+                        <picture>
+                            <source srcset="{{ media.path|imagine_filter('thumb_400_webp') }}" type="image/webp">
+							<img class="w-100" src="{{ asset(media.path) }}" alt="{{ media.title }}" 
+							loading="{{ isFirst ? 'eager' : 'lazy' }}" 
+							fetchpriority="{{ isFirst ? 'high' : 'auto' }}" decoding="async"
+							width="400" height="400">
+                        </picture>
                         <p class="text-center mb-0 mt-2 media-title">{{ media.title }}</p>
                     </div>
                 {% endfor %}

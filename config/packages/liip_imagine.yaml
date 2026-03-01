@@ -1,0 +1,44 @@
+# config/packages/liip_imagine.yaml
+liip_imagine:
+    driver: "gd"
+    cache: default
+
+    loaders:
+      default:
+        filesystem:
+          data_root: '%kernel.project_dir%/public'
+    
+    filter_sets:
+        cache: ~
+
+        thumb_400_webp:
+            quality: 82
+            format: webp
+            filters:
+                thumbnail:
+                    size: [400, 400]
+                    mode: outbound
+        
+        thumb_400_jpg_82:
+            quality: 82
+            format: jpg
+            filters:
+                thumbnail:
+                    size: [400, 400]
+                    mode: outbound
+        
+        thumb_600_webp:
+            quality: 82
+            format: webp
+            filters:
+                thumbnail:
+                    size: [600, 600]
+                    mode: outbound
+        
+        thumb_600_jpg_82:
+            quality: 82
+            format: jpg
+            filters:
+                thumbnail:
+                    size: [600, 600]
+                    mode: outbound
