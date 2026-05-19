@@ -1,0 +1,78 @@
+{% extends 'admin.html.twig' %}
+
+{% block admin %}
+    <div class="d-flex justify-content-between align-items-center">
+        <h1>Gestion des invités</h1>
+        <a href="{{ path('admin_guest_add') }}" class="btn btn-primary">Ajouter un invité</a>
+    </div>
+
+    {% for message in app.flashes('success') %}
+        <div class="alert alert-success">{{ message }}</div>
+    {% endfor %}
+
+    <table class="table">
+        <thead>
+            <tr>
+                <th>Nom</th>
+                <th>Email</th>
+                <th>Statut</th>
+                <th>Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for guest in guests %}
+                <tr>
+                    <td>{{ guest.name }}</td>
+                    <td>{{ guest.email }}</td>
+                    <td>
+                        {% if guest.blocked %}
+                            <span class="badge bg-danger">Bloqué</span>
+                        {% else %}
+                            <span class="badge bg-success">Actif</span>
+                        {% endif %}
+                    </td>
+                    <td>
+                        <a href="{{ path('admin_guest_block', {id: guest.id}) }}" class="btn btn-warning btn-sm">
+                            {{ guest.blocked ? 'Débloquer' : 'Bloquer' }}
+                        </a>
+                        <a href="{{ path('admin_guest_delete', {id: guest.id}) }}"
+                            class="btn btn-danger btn-sm"
+                            onclick="return confirm('Supprimer cet invité et tout son contenu ?')">
+                            Supprimer
+                        </a>
+                    </td>
+                </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+
+    {% set totalPages = (total / 25)|round(0, 'ceil') %}
+
+    <nav aria-label="Page navigation">
+        <ul class="pagination">
+            {% if page > 1 %}
+                <li class="page-item">
+                    <a class="page-link" href="{{ path('admin_guest_index', {page: 1}) }}">Première page</a>
+                </li>
+                <li class="page-item">
+                    <a class="page-link" href="{{ path('admin_guest_index', {page: page - 1}) }}">Précédent</a>
+                </li>
+            {% endif %}
+
+            {% for i in range(max(1, page - 3), min(totalPages, page + 3)) %}
+                <li class="page-item {% if i == page %}active{% endif %}">
+                    <a class="page-link" href="{{ path('admin_guest_index', {page: i}) }}">{{ i }}</a>
+                </li>
+            {% endfor %}
+
+            {% if page < totalPages %}
+                <li class="page-item">
+                    <a class="page-link" href="{{ path('admin_guest_index', {page: page + 1}) }}">Suivant</a>
+                </li>
+                <li class="page-item">
+                    <a class="page-link" href="{{ path('admin_guest_index', {page: totalPages}) }}">Dernière page</a>
+                </li>
+            {% endif %}
+        </ul>
+    </nav>
+{% endblock %}

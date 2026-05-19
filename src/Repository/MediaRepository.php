@@ -5,8 +5,13 @@ namespace App\Repository;
 use App\Entity\Media;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\Persistence\ManagerRegistry;
+use App\Entity\User;
 
 /**
+ * Dépôt de données pour l'entité Media.
+ *
+ * Fournit les méthodes de requête Doctrine pour récupérer des médias depuis la base de données.
+ *
  * @extends ServiceEntityRepository<Media>
  *
  * @method Media|null find($id, $lockMode = null, $lockVersion = null)
@@ -16,33 +21,27 @@ use Doctrine\Persistence\ManagerRegistry;
  */
 class MediaRepository extends ServiceEntityRepository
 {
+    /**
+     * @param ManagerRegistry $registry Le registre de gestionnaires Doctrine
+     */
     public function __construct(ManagerRegistry $registry)
     {
         parent::__construct($registry, Media::class);
     }
 
-//    /**
-//     * @return Media[] Returns an array of Media objects
-//     */
-//    public function findByExampleField($value): array
-//    {
-//        return $this->createQueryBuilder('m')
-//            ->andWhere('m.exampleField = :val')
-//            ->setParameter('val', $value)
-//            ->orderBy('m.id', 'ASC')
-//            ->setMaxResults(10)
-//            ->getQuery()
-//            ->getResult()
-//        ;
-//    }
-
-//    public function findOneBySomeField($value): ?Media
-//    {
-//        return $this->createQueryBuilder('m')
-//            ->andWhere('m.exampleField = :val')
-//            ->setParameter('val', $value)
-//            ->getQuery()
-//            ->getOneOrNullResult()
-//        ;
-//    }
+    /**
+     * Retourne tous les médias d'un utilisateur, triés par identifiant croissant.
+     *
+     * @param User $user L'utilisateur dont on veut récupérer les médias
+     * @return Media[] La liste des médias triés par id
+     */
+    public function findByUserOrderedById(User $user): array
+    {
+        return $this->createQueryBuilder('m')
+            ->andWhere('m.user = :user')
+            ->setParameter('user', $user)
+            ->orderBy('m.id', 'ASC')
+            ->getQuery()
+            ->getResult();
+    }
 }

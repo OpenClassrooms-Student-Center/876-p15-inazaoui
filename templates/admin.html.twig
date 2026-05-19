@@ -8,27 +8,25 @@
                     <h1 class="text-white">Admin</h1>
                     <ul class="nav flex-column">
                         <li class="nav-item">
-                            <a class="nav-link" href="{{ path('admin_media_index') }}">
-                                Medias
-                            </a>
+                            <a class="nav-link" href="{{ path('admin_media_index') }}">Medias</a>
                         </li>
                         {% if is_granted('ROLE_ADMIN') %}
                             <li class="nav-item">
-                                <a class="nav-link" href="{{ path('admin_album_index') }}">
-                                    Albums
-                                </a>
+                                <a class="nav-link" href="{{ path('admin_album_index') }}">Albums</a>
                             </li>
                             <li class="nav-item">
-                                <a class="nav-link" href="">
-                                    Invités
-                                </a>
+                                <a class="nav-link" href="{{ path('admin_guest_index') }}">Invités</a>
                             </li>
                         {% endif %}
+                        <li class="nav-item mt-4">
+                            <a class="nav-link text-danger" href="{{ path('admin_logout') }}">Déconnexion</a>
+                        </li>
                     </ul>
                 </div>
             </nav>
             <main class="col-md-9 ms-sm-auto col-lg-10 p-4">
-                {% block admin %}{% endblock %}
+                {% block admin %}
+                {% endblock %}
             </main>
         </div>
     </div>

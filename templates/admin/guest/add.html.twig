@@ -1,0 +1,16 @@
+{% extends 'admin.html.twig' %}
+
+{% block admin %}
+    <div class="d-flex justify-content-between align-items-center">
+        <h1>Ajouter un invité</h1>
+        <a href="{{ path('admin_guest_index') }}" class="btn btn-secondary">Retour</a>
+    </div>
+
+    {{ form_start(form, {'attr': {'class': 'mt-4'}}) }}
+        {{ form_row(form.name) }}
+        {{ form_row(form.email) }}
+        {{ form_row(form.description) }}
+        {{ form_row(form.plainPassword) }}
+        <button type="submit" class="btn btn-primary">Ajouter</button>
+    {{ form_end(form) }}
+{% endblock %}

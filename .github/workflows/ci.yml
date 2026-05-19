@@ -1,0 +1,62 @@
+name: CI
+
+on:
+  push:
+    branches: [ main, feature/* ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  build:
+    name: Tests & Analyse statique
+    runs-on: ubuntu-latest
+
+    services:
+      mysql:
+        image: mysql:8.0
+        env:
+          MYSQL_ROOT_PASSWORD: root
+          MYSQL_DATABASE: inazaoui_test
+        ports:
+          - 3306:3306
+        options: --health-cmd="mysqladmin ping" --health-interval=10s --health-timeout=5s --health-retries=3
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.2'
+          extensions: gd, intl, pdo_mysql, openssl
+          coverage: xdebug
+
+      - name: Cache Composer
+        uses: actions/cache@v4
+        with:
+          path: vendor
+          key: composer-${{ hashFiles('composer.lock') }}
+          restore-keys: composer-
+
+      - name: Installer les dépendances
+        run: composer install --no-interaction --prefer-dist
+
+      - name: Vérifier le cache Symfony
+        run: php bin/console cache:clear --env=dev
+
+      - name: Préparer la base de données de test
+        env:
+          DATABASE_URL: mysql://root:root@127.0.0.1:3306/inazaoui_test
+        run: |
+          php bin/console doctrine:database:create --env=test --if-not-exists
+          php bin/console doctrine:migrations:migrate --env=test --no-interaction
+          php bin/console doctrine:fixtures:load --env=test --no-interaction
+
+      - name: Lancer les tests PHPUnit
+        env:
+          DATABASE_URL: mysql://root:root@127.0.0.1:3306/inazaoui_test
+        run: php bin/phpunit --coverage-text
+
+      - name: Analyse statique PHPStan
+        run: php vendor/bin/phpstan analyse --no-progress
