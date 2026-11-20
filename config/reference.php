@@ -927,6 +927,7 @@ use Symfony\Component\Config\Loader\ParamConfigurator as Param;
  *     },
  * }
  * @psalm-type DoctrineMigrationsConfig = array{
+ *     enable_service_migrations?: bool|Param, // Whether to enable fetching migrations from the service container. // Default: false
  *     migrations_paths?: array<string, scalar|Param|null>,
  *     services?: array<string, scalar|Param|null>,
  *     factories?: array<string, scalar|Param|null>,
