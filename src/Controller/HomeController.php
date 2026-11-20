@@ -5,10 +5,10 @@ namespace App\Controller;
 use App\Entity\Album;
 use App\Entity\Media;
 use App\Entity\User;
+use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Attribute\Route;
-use Doctrine\ORM\EntityManagerInterface;
 
 class HomeController extends AbstractController
 {
@@ -26,8 +26,9 @@ class HomeController extends AbstractController
     public function guests(): Response
     {
         $guests = $this->em->getRepository(User::class)->findBy(['admin' => false]);
+
         return $this->render('front/guests.html.twig', [
-            'guests' => $guests
+            'guests' => $guests,
         ]);
     }
 
@@ -35,8 +36,9 @@ class HomeController extends AbstractController
     public function guest(int $id): Response
     {
         $guest = $this->em->getRepository(User::class)->find($id);
+
         return $this->render('front/guest.html.twig', [
-            'guest' => $guest
+            'guest' => $guest,
         ]);
     }
 
@@ -50,10 +52,11 @@ class HomeController extends AbstractController
         $medias = $album
             ? $this->em->getRepository(Media::class)->findByAlbum($album)
             : $this->em->getRepository(Media::class)->findByUser($user);
+
         return $this->render('front/portfolio.html.twig', [
             'albums' => $albums,
             'album' => $album,
-            'medias' => $medias
+            'medias' => $medias,
         ]);
     }
 
