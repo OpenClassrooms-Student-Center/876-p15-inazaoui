@@ -20,4 +20,10 @@ class SecurityController extends AbstractController
             'error' => $error,
         ]);
     }
+
+    #[Route('/logout', name: 'admin_logout')]
+    public function logout(): never
+    {
+        throw new \LogicException('Cette méthode est interceptée par le firewall (voir security.yaml).');
+    }
 }
