@@ -5,15 +5,18 @@ namespace App\Controller;
 use App\Entity\Album;
 use App\Entity\Media;
 use App\Entity\User;
+use App\Repository\UserRepository;
+use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Attribute\Route;
-use Doctrine\ORM\EntityManagerInterface;
 
 class HomeController extends AbstractController
 {
-    public function __construct(private EntityManagerInterface $em)
-    {
+    public function __construct(
+        private EntityManagerInterface $em,
+        private UserRepository $userRepository,
+    ) {
     }
 
     #[Route('', name: 'home')]
@@ -25,9 +28,8 @@ class HomeController extends AbstractController
     #[Route('/guests', name: 'guests')]
     public function guests(): Response
     {
-        $guests = $this->em->getRepository(User::class)->findBy(['admin' => false]);
         return $this->render('front/guests.html.twig', [
-            'guests' => $guests
+            'guests' => $this->userRepository->findGuests(),
         ]);
     }
 
@@ -35,8 +37,9 @@ class HomeController extends AbstractController
     public function guest(int $id): Response
     {
         $guest = $this->em->getRepository(User::class)->find($id);
+
         return $this->render('front/guest.html.twig', [
-            'guest' => $guest
+            'guest' => $guest,
         ]);
     }
 
@@ -45,15 +48,17 @@ class HomeController extends AbstractController
     {
         $albums = $this->em->getRepository(Album::class)->findAll();
         $album = $id ? $this->em->getRepository(Album::class)->find($id) : null;
-        $user = $this->em->getRepository(User::class)->findOneByAdmin(true);
+        // $user = $this->em->getRepository(User::class)->findOneByAdmin(true);
+        $user = $this->userRepository->findOneAdmin();
 
         $medias = $album
             ? $this->em->getRepository(Media::class)->findByAlbum($album)
             : $this->em->getRepository(Media::class)->findByUser($user);
+
         return $this->render('front/portfolio.html.twig', [
             'albums' => $albums,
             'album' => $album,
-            'medias' => $medias
+            'medias' => $medias,
         ]);
     }
 

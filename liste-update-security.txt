@@ -1,0 +1,73 @@
+
+src\Controller\Admin\AlbumController.php:3:namespace App\Controller\Admin;
+src\Controller\Admin\AlbumController.php:19:    #[Route('/admin/album', name: 'admin_album_index')]
+src\Controller\Admin\AlbumController.php:24:        return $this->render('admin/album/index.html.twig', ['albums' => $albums]);
+src\Controller\Admin\AlbumController.php:27:    #[Route('/admin/album/add', name: 'admin_album_add')]
+src\Controller\Admin\AlbumController.php:38:            return $this->redirectToRoute('admin_album_index');
+src\Controller\Admin\AlbumController.php:41:        return $this->render('admin/album/add.html.twig', ['form' => $form->createView()]);
+src\Controller\Admin\AlbumController.php:44:    #[Route('/admin/album/update/{id}', name: 'admin_album_update')]
+src\Controller\Admin\AlbumController.php:54:            return $this->redirectToRoute('admin_album_index');
+src\Controller\Admin\AlbumController.php:57:        return $this->render('admin/album/update.html.twig', ['form' => $form->createView()]);
+src\Controller\Admin\AlbumController.php:60:    #[Route('/admin/album/delete/{id}', name: 'admin_album_delete')]
+src\Controller\Admin\AlbumController.php:67:        return $this->redirectToRoute('admin_album_index');
+src\Controller\Admin\MediaController.php:3:namespace App\Controller\Admin;
+src\Controller\Admin\MediaController.php:20:    #[Route('/admin/media', name: 'admin_media_index')]
+src\Controller\Admin\MediaController.php:27:        if (!$this->isGranted('ROLE_ADMIN')) {
+src\Controller\Admin\MediaController.php:39:        return $this->render('admin/media/index.html.twig', [
+src\Controller\Admin\MediaController.php:46:    #[Route('/admin/media/add', name: 'admin_media_add')]
+src\Controller\Admin\MediaController.php:50:        $form = $this->createForm(MediaType::class, $media, ['is_admin' => $this->isGranted('ROLE_ADMIN')]);
+src\Controller\Admin\MediaController.php:54:            if (!$this->isGranted('ROLE_ADMIN')) {
+src\Controller\Admin\MediaController.php:63:            return $this->redirectToRoute('admin_media_index');
+src\Controller\Admin\MediaController.php:66:        return $this->render('admin/media/add.html.twig', ['form' => $form->createView()]);
+src\Controller\Admin\MediaController.php:69:    #[Route('/admin/media/delete/{id}', name: 'admin_media_delete')]
+src\Controller\Admin\MediaController.php:77:        return $this->redirectToRoute('admin_media_index');
+src\Controller\Admin\SecurityController.php:3:namespace App\Controller\Admin;
+src\Controller\Admin\SecurityController.php:12:    #[Route('/login', name: 'admin_login')]
+src\Controller\Admin\SecurityController.php:18:        return $this->render('admin/login.html.twig', [
+src\Controller\HomeController.php:28:        $guests = $this->em->getRepository(User::class)->findBy(['admin' => false]);
+src\Controller\HomeController.php:50:        $user = $this->em->getRepository(User::class)->findOneByAdmin(true);
+src\Entity\User.php:20:    private bool $admin = false;
+src\Entity\User.php:89:    public function isAdmin(): bool
+src\Entity\User.php:91:        return $this->admin;
+src\Entity\User.php:94:    public function setAdmin(bool $admin): void
+src\Entity\User.php:96:        $this->admin = $admin;
+src\Form\MediaType.php:31:        if ($options['is_admin']) {
+src\Form\MediaType.php:53:            'is_admin' => false,
+templates\admin\album\add.html.twig:1:{% extends 'admin.html.twig' %}
+templates\admin\album\add.html.twig:3:{% block admin %}
+templates\admin\album\add.html.twig:6:        <a href="{{ path('admin_album_index') }}" class="btn btn-primary">Retour</a>
+templates\admin\album\index.html.twig:1:{% extends 'admin.html.twig' %}
+templates\admin\album\index.html.twig:3:{% block admin %}
+templates\admin\album\index.html.twig:6:        <a href="{{ path('admin_album_add') }}" class="btn btn-primary">Ajouter</a>
+templates\admin\album\index.html.twig:20:                    <a href="{{ path('admin_album_update', {id: album.id}) }}" class="btn btn-warning">Modifier</a>
+templates\admin\album\index.html.twig:21:                    <a href="{{ path('admin_album_delete', {id: album.id}) }}" class="btn btn-danger">Supprimer</a>
+templates\admin\album\update.html.twig:1:{% extends 'admin.html.twig' %}
+templates\admin\album\update.html.twig:3:{% block admin %}
+templates\admin\album\update.html.twig:6:        <a href="{{ path('admin_album_index') }}" class="btn btn-primary">Retour</a>
+templates\admin\media\add.html.twig:1:{% extends 'admin.html.twig' %}
+templates\admin\media\add.html.twig:3:{% block admin %}
+templates\admin\media\add.html.twig:6:        <a href="{{ path('admin_media_index') }}" class="btn btn-primary">Retour</a>
+templates\admin\media\add.html.twig:10:        {% if is_granted('ROLE_ADMIN') %}
+templates\admin\media\index.html.twig:1:{% extends 'admin.html.twig' %}
+templates\admin\media\index.html.twig:3:{% block admin %}
+templates\admin\media\index.html.twig:6:        <a href="{{ path('admin_media_add') }}" class="btn btn-primary">Ajouter</a>
+templates\admin\media\index.html.twig:13:                {% if is_granted('ROLE_ADMIN') %}
+templates\admin\media\index.html.twig:25:                    {% if is_granted('ROLE_ADMIN') %}
+templates\admin\media\index.html.twig:30:                        <a href="{{ path('admin_media_delete', {id: media.id}) }}" class="btn btn-danger">Supprimer</a>
+templates\admin\media\index.html.twig:42:                    <a class="page-link" href="{{ path('admin_media_index', {page: 1}) }}">Première page</a>
+templates\admin\media\index.html.twig:45:                    <a class="page-link" href="{{ path('admin_media_index', {page: page - 1}) }}">Précédent</a>
+templates\admin\media\index.html.twig:51:                    <a class="page-link" href="{{ path('admin_media_index', {page: i}) }}">{{ i }}</a>
+templates\admin\media\index.html.twig:57:                    <a class="page-link" href="{{ path('admin_media_index', {page: page + 1}) }}">Suivant</a>
+templates\admin\media\index.html.twig:60:                    <a class="page-link" href="{{ path('admin_media_index', {page: totalPages}) }}">Dernière page</a>
+templates\admin\login.html.twig:34:                {% block admin %}{% endblock %}
+templates\admin.html.twig:8:                    <h1 class="text-white">Admin</h1>
+templates\admin.html.twig:11:                            <a class="nav-link" href="{{ path('admin_media_index') }}">
+templates\admin.html.twig:15:                        {% if is_granted('ROLE_ADMIN') %}
+templates\admin.html.twig:17:                                <a class="nav-link" href="{{ path('admin_album_index') }}">
+templates\admin.html.twig:31:                {% block admin %}{% endblock %}
+templates\front.html.twig:30:                            <a class="nav-link" href="{{ path('admin_login') }}">Connexion</a>
+config\packages\notifier.yaml:11:        admin_recipients:
+config\packages\notifier.yaml:12:            - { email: admin@example.com }
+config\packages\security.yaml:27:        # - { path: ^/admin, roles: ROLE_ADMIN }
+config\reference.php:626: *         admin_recipients?: list<array{ // Default: []
+

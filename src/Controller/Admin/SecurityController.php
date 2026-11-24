@@ -14,9 +14,16 @@ class SecurityController extends AbstractController
     {
         $error = $authenticationUtils->getLastAuthenticationError();
         $lastUsername = $authenticationUtils->getLastUsername();
+
         return $this->render('admin/login.html.twig', [
             'last_username' => $lastUsername,
-            'error'         => $error,
+            'error' => $error,
         ]);
+    }
+
+    #[Route('/logout', name: 'admin_logout')]
+    public function logout(): never
+    {
+        throw new \LogicException('Cette méthode est interceptée par le firewall (voir security.yaml).');
     }
 }

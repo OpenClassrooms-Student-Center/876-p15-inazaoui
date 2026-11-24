@@ -24,20 +24,45 @@ class UserRepository extends ServiceEntityRepository implements PasswordUpgrader
         parent::__construct($registry, User::class);
     }
 
-    /**
-     * Used to upgrade (rehash) the user's password automatically over time.
-     */
     public function upgradePassword(PasswordAuthenticatedUserInterface $user, string $newHashedPassword): void
     {
         if (!$user instanceof User) {
-            throw new UnsupportedUserException(sprintf('Instances of "%s" are not supported.', $user::class));
+            throw new UnsupportedUserException(\sprintf('Instances of "%s" are not supported.', $user::class));
         }
 
-        $this->getEntityManager()
-            ->getClassMetadata(User::class)
-            ->setFieldValue($user, 'password', $newHashedPassword);
+        $user->setPassword($newHashedPassword);
         $this->getEntityManager()->persist($user);
         $this->getEntityManager()->flush();
+    }
+
+    /**
+     * Trouve tous les utilisateurs qui ne sont pas des administrateurs.
+     *
+     * @return list<User>
+     * */
+    public function findGuests(): array
+    {
+        return $this->createQueryBuilder('u')
+            ->andWhere('u.roles IS NULL OR u.roles NOT LIKE :role')
+            ->setParameter('role', '%"ROLE_ADMIN"%')
+            ->orderBy('u.id', 'ASC')
+            ->getQuery()
+            ->getResult();
+    }
+
+    /**
+     * Trouve un utilisateur qui est un administrateur.
+     *
+     * */
+    public function findOneAdmin(): ?User
+    {
+        return $this->createQueryBuilder('u')
+            ->andWhere('u.roles LIKE :role')
+            ->setParameter('role', '%"ROLE_ADMIN"%')
+            ->orderBy('u.id', 'ASC')
+            ->setMaxResults(1)
+            ->getQuery()
+            ->getOneOrNullResult();
     }
 
     //    /**

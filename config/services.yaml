@@ -7,20 +7,30 @@
 # Put parameters here that don't need to change on each machine where the app is deployed
 # https://symfony.com/doc/current/best_practices.html#use-parameters-for-application-configuration
 parameters:
+    # Nombre de médias par page pour la pagination
+    app.media_per_page: "%env(int:MEDIA_PER_PAGE)%"
+    # Poids maxi autorisé pour l'upload d'image
+    app.media.max_size: "%env(MEDIA_MAX_SIZE)%"
+    # Types MIME autorisés pour l'upload d'image
+    app.media.mime_types:
+        - "image/jpeg"
+        - "image/png"
+        - "image/webp"
+        - "image/gif"
 
 services:
     # default configuration for services in *this* file
     _defaults:
-        autowire: true      # Automatically injects dependencies in your services.
+        autowire: true # Automatically injects dependencies in your services.
         autoconfigure: true # Automatically registers your services as commands, event subscribers, etc.
 
     # makes classes in src/ available to be used as services
     # this creates a service per class whose id is the fully-qualified class name
     App\:
-        resource: '../src/'
+        resource: "../src/"
 
     App\Controller\:
-        resource: '../src/Controller/'
-        tags: ['controller.service_arguments']
+        resource: "../src/Controller/"
+        tags: ["controller.service_arguments"]
     # add more service definitions when explicit configuration is needed
     # please note that last definitions always *replace* previous ones
