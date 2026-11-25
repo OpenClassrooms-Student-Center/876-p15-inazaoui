@@ -13,7 +13,7 @@
         <div class="row min-vh-100 align-items-center justify-content-center">
             <nav class="col-md-6 col-lg-4">
                 <div class="position-sticky">
-                    <h1 class="text-white">Connexion</h1>
+                    <h1 class="text-black">Connexion</h1>
                     {% if error %}
                         <div class="alert alert-danger" role="alert">{{ error.messageKey|trans(error.messageData, 'security') }}</div>
                     {% endif %}
@@ -30,6 +30,7 @@
                         <button type="submit" class="btn btn-primary">Connexion</button>
                     </form>
                 </div>
+                <a class="nav-link text-decoration-underline" href="{{ path('home') }}" style="margin-top: 50px;">Retour à l'accueil</a>
             </nav>
             <main class="col-md-9 ms-sm-auto col-lg-10 p-4">
                 {% block admin %}{% endblock %}

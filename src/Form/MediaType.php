@@ -20,6 +20,10 @@ use Symfony\Component\Validator\Constraints\NotNull;
  */
 class MediaType extends AbstractType
 {
+    /**
+     * @param string        $maxSize   Taille maximale du fichier (ex: "2M", "500K")
+     * @param array<string> $mimeTypes Types MIME autorisés (ex: ["image/jpeg", "image/png"])
+     */
     public function __construct(
         #[Autowire('%app.media.max_size%')]
         private readonly string $maxSize,
